@@ -8,10 +8,17 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
+    private GameObject[] _powerups;
+    [SerializeField]
     private float _baseSpawnTime = 5.0f;
     [SerializeField]
     private float _spawnTimeModifier = 1.0f;
+    [Tooltip("X is min power up spawn time; Y is max spawn time")]
+    [SerializeField]
+    private Vector2 _minMaxPowerUpSpawnTime = new Vector2(6.0f, 10.0f);
+    private float _powerUpSpawnTime = 5.0f;
     private Coroutine _spawnEnemyCoroutine;
+    private Coroutine _spawnPowerupCoroutine;
     private bool _stopSpawning = false;
 
     private int _aliveEnemies;
@@ -21,6 +28,7 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime));
+        _spawnPowerupCoroutine = StartCoroutine(SpawnPowerupRoutine());
     }
 
     private IEnumerator SpawnEnemyRoutine(float spawnTime)
@@ -37,6 +45,19 @@ public class SpawnManager : MonoBehaviour
                 SpawnEnemyAtLocation();
             }
             yield return new WaitForSeconds(currentSpawnTime);
+        }
+    }
+
+    private IEnumerator SpawnPowerupRoutine()
+    {
+        while (_stopSpawning == false)
+        {
+            _powerUpSpawnTime = Random.Range(_minMaxPowerUpSpawnTime.x, _minMaxPowerUpSpawnTime.y);
+            yield return new WaitForSeconds(_powerUpSpawnTime);
+            float randomX = Random.Range(-9.3f, 9.3f);
+            Vector3 spawnLocation = new Vector3(randomX, 9, 0);
+            int randomPowerUp = Random.Range(0, _powerups.Length);
+            Instantiate(_powerups[randomPowerUp], spawnLocation, Quaternion.identity);
         }
     }
 
