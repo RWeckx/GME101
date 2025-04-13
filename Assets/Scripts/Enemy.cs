@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -12,26 +13,30 @@ public class Enemy : MonoBehaviour
     private float _rightBounds = 9.3f;
     private float _leftBounds = -9.3f;
 
+    private bool _isDead;
+
     private SpawnManager _spawnManager;
     private Player _player;
+    private Animator _animator;
 
     // Start is called before the first frame update
     void Start()
     {
         _spawnManager = GameObject.FindObjectOfType<SpawnManager>();
         _player = GameObject.FindObjectOfType<Player>();
+        _animator = GetComponent<Animator>();
+        if (_player == null)
+            Debug.Log("No reference to Player");
+        if (_animator == null)
+            Debug.Log("No reference to Animator");
         _pointsToGive = Random.Range(5, 15);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
-        if(transform.position.y <= _lowerBounds)
-        {
-            float randomX = Random.Range(_leftBounds, _rightBounds);
-            transform.position = new Vector3(randomX, _upperBounds, 0); 
-        }
+        CalculateMovement();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -40,14 +45,26 @@ public class Enemy : MonoBehaviour
         {
             DealDamage(other);
             other.GetComponent<Player>().AddScore(_pointsToGive);
-            DestroySelf();
+            HandleEnemyDeath();
         }
         if (other.tag == "Laser")
         {
             Destroy(other.gameObject);
             if (_player != null)
                 _player.GetComponent<Player>().AddScore(_pointsToGive);
-            DestroySelf();
+            HandleEnemyDeath();
+        }
+    }
+
+    private void CalculateMovement()
+    {
+        transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+        if (transform.position.y <= _lowerBounds)
+        {
+            float randomX = Random.Range(_leftBounds, _rightBounds);
+            transform.position = new Vector3(randomX, _upperBounds, 0);
+            if (_isDead)
+                Destroy(this.gameObject);
         }
     }
 
@@ -60,12 +77,14 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void DestroySelf()
+    void HandleEnemyDeath()
     {
         if(_spawnManager != null)
         {
             _spawnManager.OnEnemyDeath();
         }
-        Destroy(this.gameObject);
+        _isDead = true;
+        _animator.SetTrigger("OnEnemyDeath");
+        GetComponent<Collider2D>().enabled = false;
     }
 }

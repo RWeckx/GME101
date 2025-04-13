@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _shieldVisuals;
     [SerializeField]
+    private GameObject[] _damagedEngineVisuals;
+    [SerializeField]
     private float _baseFireRate = 0.5f;
     [SerializeField]
     private int _lives = 3;
@@ -62,6 +64,8 @@ public class Player : MonoBehaviour
             Debug.Log("The UI Manager is null");
         if (_gameManager == null)
             Debug.Log("The Game Manager is null");
+        _damagedEngineVisuals[0].SetActive(false);
+        _damagedEngineVisuals[1].SetActive(false);
     }
 
     // Update is called once per frame
@@ -122,9 +126,21 @@ public class Player : MonoBehaviour
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
 
-        if (_lives <= 0)
+        switch (_lives)
         {
-            HandlePlayerDeath();
+            case 0:
+                HandlePlayerDeath();
+                break;
+            case 1:
+                _damagedEngineVisuals[1].SetActive(true);
+                break;
+            case 2:
+                _damagedEngineVisuals[0].SetActive(true);
+                _damagedEngineVisuals[1].SetActive(false); // for future "gain life" powerup
+                break;
+            case 3:
+                _damagedEngineVisuals[0].SetActive(false); // for future "gain life" powerup
+                break;
         }
     }
 
