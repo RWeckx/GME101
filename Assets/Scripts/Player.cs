@@ -35,6 +35,11 @@ public class Player : MonoBehaviour
     private float _moveSpeedMultiplier = 0.0f; // A float representing a percentage. Eg.: 0.2 means 20%
     private float _fireRateMultiplier = 0.0f; // A float representing a percentage. Eg.: 0.2 means 20%
 
+    private UIManager _uiManager;
+    private int _score;
+
+    private GameManager _gameManager;
+
     //Variables to define the playable space. The player cannot move outside of these bounds
     private float _upperBounds = 0;
     private float _lowerBounds = -3.9f;
@@ -48,6 +53,15 @@ public class Player : MonoBehaviour
         transform.position = new Vector3(0, 0, 0);
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
         _shieldVisuals.SetActive(false);
+        _uiManager = GameObject.FindObjectOfType<Canvas>().GetComponent<UIManager>();
+        _gameManager = GameObject.FindObjectOfType<GameManager>();
+
+        if (_spawnManager == null)
+            Debug.Log("The Spawn Manager is null");
+        if (_uiManager == null)
+            Debug.Log("The UI Manager is null");
+        if (_gameManager == null)
+            Debug.Log("The Game Manager is null");
     }
 
     // Update is called once per frame
@@ -106,11 +120,11 @@ public class Player : MonoBehaviour
         }
 
         _lives--;
+        _uiManager.UpdateLivesDisplay(_lives);
 
         if (_lives <= 0)
         {
-            _spawnManager.OnPlayerDeath();
-            Destroy(this.gameObject);
+            HandlePlayerDeath();
         }
     }
 
@@ -132,6 +146,20 @@ public class Player : MonoBehaviour
         _isShieldActive = true;
         _shieldVisuals.SetActive(true);
         StartCoroutine(ShieldPowerDownRoutine());
+    }
+
+    public void AddScore(int amount)
+    {
+        _score += amount;
+        _uiManager.UpdateScoreDisplay(_score);
+    }
+
+    public void HandlePlayerDeath()
+    {
+        _spawnManager.OnPlayerDeath();
+        _uiManager.ShowGameOverText();
+        _gameManager.GameOver();
+        Destroy(this.gameObject);
     }
 
     private IEnumerator TripleShotPowerDownRoutine()
