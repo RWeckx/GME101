@@ -159,7 +159,9 @@ MonoBehaviour:
     type: 3}
   _baseFireRate: 0.5
   _lives: 3
-  _TripleShotPowerDownTime: 2
+  _tripleShotPowerDownTime: 2
+  _moveSpeedPowerDownTime: 5
+  _moveSpeedBoostMultiplier: 0.5
 --- !u!212 &66464017
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -487,10 +489,13 @@ MonoBehaviour:
   _enemyPrefab: {fileID: 924708055920955889, guid: 506c8e1971a8c5d478955dfd48478742,
     type: 3}
   _enemyContainer: {fileID: 360579442}
-  _powerUpPrefab: {fileID: 5937493576909917921, guid: 05319bb38b4b3c149853a95a5761c7ff,
-    type: 3}
+  _powerups:
+  - {fileID: 5937493576909917921, guid: 05319bb38b4b3c149853a95a5761c7ff, type: 3}
+  - {fileID: 2114695023602169910, guid: b9572f68e39ca3a49bc336c37c42a4d9, type: 3}
+  - {fileID: 2114695023602169910, guid: b9572f68e39ca3a49bc336c37c42a4d9, type: 3}
   _baseSpawnTime: 5
   _spawnTimeModifier: 5
+  _minMaxPowerUpSpawnTime: {x: 6, y: 10}
 --- !u!4 &1196896732
 Transform:
   m_ObjectHideFlags: 0

@@ -8,7 +8,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
-    private GameObject _powerUpPrefab;
+    private GameObject[] _powerups;
     [SerializeField]
     private float _baseSpawnTime = 5.0f;
     [SerializeField]
@@ -29,6 +29,7 @@ public class SpawnManager : MonoBehaviour
     {
         _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime));
         _spawnPowerupCoroutine = StartCoroutine(SpawnPowerupRoutine());
+        Debug.Log(_powerups.Length);
     }
 
     private IEnumerator SpawnEnemyRoutine(float spawnTime)
@@ -56,7 +57,8 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(_powerUpSpawnTime);
             float randomX = Random.Range(-9.3f, 9.3f);
             Vector3 spawnLocation = new Vector3(randomX, 9, 0);
-            GameObject spawnedPowerUp = Instantiate(_powerUpPrefab, spawnLocation, Quaternion.identity);
+            int randomPowerUp = Random.Range(0, _powerups.Length);
+            Instantiate(_powerups[randomPowerUp], spawnLocation, Quaternion.identity);
         }
     }
 
