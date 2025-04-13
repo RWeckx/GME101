@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _tripleShotPrefab;
     [SerializeField]
+    private GameObject _shieldVisuals;
+    [SerializeField]
     private float _baseFireRate = 0.5f;
     [SerializeField]
     private int _lives = 3;
@@ -20,11 +22,14 @@ public class Player : MonoBehaviour
     [Tooltip("A float representing a percentage. Eg.: 0.2 means 20%")]
     [SerializeField]
     private float _moveSpeedBoostMultiplier = 0.3f;
+    [SerializeField]
+    private float _shieldPowerDownTime = 20.0f;
 
     private float _canFire = 0f;
     private SpawnManager _spawnManager;
     private bool _isTripleShotActive = false;
     private bool _isSpeedBoostActive = false;
+    private bool _isShieldActive = false;
 
     private float _moveSpeed;
     private float _moveSpeedMultiplier = 0.0f; // A float representing a percentage. Eg.: 0.2 means 20%
@@ -42,6 +47,7 @@ public class Player : MonoBehaviour
     {
         transform.position = new Vector3(0, 0, 0);
         _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
+        _shieldVisuals.SetActive(false);
     }
 
     // Update is called once per frame
@@ -92,7 +98,15 @@ public class Player : MonoBehaviour
 
     public void TakeDamage()
     {
+        if (_isShieldActive) // if the shield is active, don't do anything in this method except setting shield back to false
+        {
+            _isShieldActive = false;
+            _shieldVisuals.SetActive(false);
+            return;
+        }
+
         _lives--;
+
         if (_lives <= 0)
         {
             _spawnManager.OnPlayerDeath();
@@ -113,6 +127,13 @@ public class Player : MonoBehaviour
         StartCoroutine(SpeedBoostPowerDownRoutine());
     }
 
+    public void SetShieldActive()
+    {
+        _isShieldActive = true;
+        _shieldVisuals.SetActive(true);
+        StartCoroutine(ShieldPowerDownRoutine());
+    }
+
     private IEnumerator TripleShotPowerDownRoutine()
     {
         yield return new WaitForSeconds(_tripleShotPowerDownTime);
@@ -124,5 +145,12 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(_moveSpeedPowerDownTime);
         _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
         _isSpeedBoostActive = false;
+    }
+
+    private IEnumerator ShieldPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_shieldPowerDownTime);
+        _isShieldActive = false;
+        _shieldVisuals.SetActive(false);
     }
 }

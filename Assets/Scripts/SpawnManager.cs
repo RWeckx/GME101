@@ -29,7 +29,6 @@ public class SpawnManager : MonoBehaviour
     {
         _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime));
         _spawnPowerupCoroutine = StartCoroutine(SpawnPowerupRoutine());
-        Debug.Log(_powerups.Length);
     }
 
     private IEnumerator SpawnEnemyRoutine(float spawnTime)
