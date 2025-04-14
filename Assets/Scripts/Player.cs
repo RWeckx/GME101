@@ -14,6 +14,10 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject[] _damagedEngineVisuals;
     [SerializeField]
+    private GameObject _laserShotSFX;
+    [SerializeField]
+    private AudioClip _explosionAudioClip;
+    [SerializeField]
     private float _baseFireRate = 0.5f;
     [SerializeField]
     private int _lives = 3;
@@ -106,12 +110,11 @@ public class Player : MonoBehaviour
         float _fireRate = _baseFireRate * (1 + _fireRateMultiplier);
         _canFire = Time.time + _fireRate;
         if (_isTripleShotActive)
-        {
             Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
-        }
 
         else
             Instantiate(_laserPrefab, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+        _laserShotSFX.GetComponent<AudioSource>().Play();
     }
 
     public void TakeDamage()
@@ -175,6 +178,7 @@ public class Player : MonoBehaviour
         _spawnManager.OnPlayerDeath();
         _uiManager.ShowGameOverText();
         _gameManager.GameOver();
+        AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
         Destroy(this.gameObject);
     }
 

@@ -8,8 +8,10 @@ public class Asteroid : MonoBehaviour
     private float _rotateSpeed = 20.0f;
     [SerializeField]
     private GameObject _explosionPrefab;
+    [SerializeField]
+    private AudioClip _explosionAudioClip;
     private SpawnManager _spawnManager;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,8 +33,14 @@ public class Asteroid : MonoBehaviour
             GameObject explosion = Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion.gameObject, 2.5f);
             Destroy(collision.gameObject);
+            PlayExplosionSound();
             _spawnManager.StartSpawning();
             Destroy(this.gameObject, 0.25f);
         }   
+    }
+
+    private void PlayExplosionSound()
+    {
+        AudioSource.PlayClipAtPoint(_explosionAudioClip, this.gameObject.transform.position, 0.5f);
     }
 }

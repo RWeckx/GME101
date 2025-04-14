@@ -6,6 +6,8 @@ public class PowerUp : MonoBehaviour
     private float _moveSpeed = 3.0f;
     [SerializeField] // 0 = Triple Shot , 1 = Speed , 2 = Shields
     private int powerupID;
+    [SerializeField]
+    private AudioClip _powerUpAudioClip;
     private float _lowerBounds = -7.3f;
     
     // Start is called before the first frame update
@@ -46,7 +48,8 @@ public class PowerUp : MonoBehaviour
                         player.SetShieldActive();
                         break;
                 } 
-            }       
+            }
+            AudioSource.PlayClipAtPoint(_powerUpAudioClip, transform.position, 0.5f);
             Destroy(this.gameObject);
         }       
     }

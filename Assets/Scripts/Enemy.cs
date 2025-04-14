@@ -5,6 +5,8 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField]
     private float _moveSpeed = 4.0f;
+    [SerializeField]
+    private AudioClip _explosionAudioClip;
     private int _pointsToGive = 10;
 
     //Define bounds of playable space for enemies
@@ -86,5 +88,6 @@ public class Enemy : MonoBehaviour
         _isDead = true;
         _animator.SetTrigger("OnEnemyDeath");
         GetComponent<Collider2D>().enabled = false;
+        AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
     }
 }
