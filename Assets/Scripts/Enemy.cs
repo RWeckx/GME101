@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -6,8 +7,18 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private float _moveSpeed = 4.0f;
     [SerializeField]
+    private GameObject _laserPrefab;
+    [SerializeField]
     private AudioClip _explosionAudioClip;
     private int _pointsToGive = 10;
+    [SerializeField]
+    private float _fireRateInSec = 3.0f;
+    [Tooltip("X & Y represent the min & max time in seconds it takes enemies to fire a laser")]
+    [SerializeField]
+    private Vector2 _minMaxFireRate = new Vector2(3.0f, 6.0f);
+    private float _canFire = 0.0f;
+    [SerializeField]
+    private Vector3 _laserOffset = new Vector3(0, -1.2f, 0);
 
     //Define bounds of playable space for enemies
     private float _upperBounds = 9.0f;
@@ -39,6 +50,8 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         CalculateMovement();
+        if (Time.time > _canFire && transform.position.y < 6.0f && _isDead != true)
+            FireLaser();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -51,10 +64,15 @@ public class Enemy : MonoBehaviour
         }
         if (other.tag == "Laser")
         {
-            Destroy(other.gameObject);
-            if (_player != null)
-                _player.GetComponent<Player>().AddScore(_pointsToGive);
-            HandleEnemyDeath();
+            Laser laser = other.gameObject.GetComponent<Laser>();
+            if (laser != null)
+                if (laser.GetIsEnemyLaser() == false)
+                {
+                    if (_player != null)
+                        _player.GetComponent<Player>().AddScore(_pointsToGive);
+                    Destroy(other.gameObject);
+                    HandleEnemyDeath();
+                } 
         }
     }
 
@@ -67,6 +85,18 @@ public class Enemy : MonoBehaviour
             transform.position = new Vector3(randomX, _upperBounds, 0);
             if (_isDead)
                 Destroy(this.gameObject);
+        }
+    }
+
+    private void FireLaser()
+    {
+        _fireRateInSec = Random.Range(_minMaxFireRate.x, _minMaxFireRate.y);
+        _canFire = Time.time + _fireRateInSec;
+        GameObject instantiatedLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+        Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
+        for (int i = 0; i < lasers.Length; i++)
+        {
+            lasers[i].SetAsEnemyLaser(this.gameObject);
         }
     }
 

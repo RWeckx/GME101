@@ -46,6 +46,8 @@ public class Player : MonoBehaviour
 
     private GameManager _gameManager;
 
+    private GameObject _sourceLaserDamage;
+
     //Variables to define the playable space. The player cannot move outside of these bounds
     private float _upperBounds = 0;
     private float _lowerBounds = -3.9f;
@@ -68,8 +70,13 @@ public class Player : MonoBehaviour
             Debug.Log("The UI Manager is null");
         if (_gameManager == null)
             Debug.Log("The Game Manager is null");
-        _damagedEngineVisuals[0].SetActive(false);
-        _damagedEngineVisuals[1].SetActive(false);
+        for (int i = 0; i < _damagedEngineVisuals.Length; i++)
+        {
+            if (_damagedEngineVisuals[i] != null)
+                _damagedEngineVisuals[i].SetActive(false);
+            else
+                Debug.Log("Null reference for " + _damagedEngineVisuals[i]);
+        }
     }
 
     // Update is called once per frame
@@ -117,6 +124,29 @@ public class Player : MonoBehaviour
         _laserShotSFX.GetComponent<AudioSource>().Play();
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Laser")
+        {
+            Laser laser = collision.gameObject.GetComponent<Laser>();
+            if (laser != null && laser.GetIsEnemyLaser() == true)
+            {
+                GameObject sourceLaserDamage = laser.transform.parent.gameObject;
+                if (sourceLaserDamage == _sourceLaserDamage)
+                {
+                    Debug.Log("Hello");
+                    Destroy(collision.gameObject);
+                    return;
+                }
+                else
+                {
+                    _sourceLaserDamage = laser.transform.parent.gameObject;
+                    TakeDamage();
+                    Destroy(collision.gameObject);
+                }
+            }        
+        }
+    }
     public void TakeDamage()
     {
         if (_isShieldActive) // if the shield is active, don't do anything in this method except setting shield back to false
@@ -126,6 +156,7 @@ public class Player : MonoBehaviour
             return;
         }
 
+        // if the owner of the laser has damaged the player in 0.25s before, don't deal damage
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
 
@@ -200,5 +231,11 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(_shieldPowerDownTime);
         _isShieldActive = false;
         _shieldVisuals.SetActive(false);
+    }
+
+    private IEnumerator ProtectionFromSameEnemy()
+    {
+        yield return new WaitForSeconds(0.25f);
+        // if hit by a laser of the same enemy, don't take damage
     }
 }
