@@ -10,7 +10,9 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject[] _powerups;
     [SerializeField]
-    private float _baseSpawnTime = 5.0f;
+    private int _amountEnemiesToSpawn = 7;
+    [SerializeField]
+    private float _baseSpawnTime = 4.0f;
     [SerializeField]
     private float _spawnTimeModifier = 1.0f;
     [Tooltip("X is min power up spawn time; Y is max spawn time")]
@@ -23,27 +25,41 @@ public class SpawnManager : MonoBehaviour
 
     private int _aliveEnemies;
     private int _killedEnemies; //updated on the DestroySelf function in Enemy script
+    private bool _readyForWave;
+    [SerializeField]
+    private int _enemiesSpawnedThisWave;
+    private float _timeToNextWave = 3.0f;
+
 
     public void StartSpawning()
     {
-        _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime));
+        _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime, _amountEnemiesToSpawn));
         _spawnPowerupCoroutine = StartCoroutine(SpawnPowerupRoutine());
+        StartCoroutine(WaveCountdown(_timeToNextWave));
     }
 
-    private IEnumerator SpawnEnemyRoutine(float spawnTime)
+    private IEnumerator SpawnEnemyRoutine(float spawnTime, int amountToSpawn)
     {
         while (_stopSpawning == false)
         {
             //Update the spawn timer, it gets faster the more enemies you kill
-            _spawnTimeModifier = 1 + _killedEnemies * 0.01f;
+            _spawnTimeModifier = 1 + _killedEnemies * 0.07f;
             float currentSpawnTime = _baseSpawnTime / _spawnTimeModifier;
-            Mathf.Clamp(currentSpawnTime, 1.5f, 6f);
+            currentSpawnTime = Mathf.Clamp(currentSpawnTime, 1.5f, 6f);
 
-            if(_aliveEnemies < 12)
+            if(_enemiesSpawnedThisWave < amountToSpawn && _readyForWave == true)
             {
                 SpawnEnemyAtLocation();
+                _enemiesSpawnedThisWave++;
             }
-            yield return new WaitForSeconds(currentSpawnTime);
+            else if (_enemiesSpawnedThisWave == amountToSpawn)
+            {
+                _readyForWave = false;
+                _timeToNextWave += 3.0f;
+                _amountEnemiesToSpawn += 3;
+                _enemiesSpawnedThisWave = 0;
+            }
+                yield return new WaitForSeconds(currentSpawnTime);
         }
     }
 
@@ -57,6 +73,15 @@ public class SpawnManager : MonoBehaviour
             Vector3 spawnLocation = new Vector3(randomX, 9, 0);
             int randomPowerUp = Random.Range(0, _powerups.Length);
             Instantiate(_powerups[randomPowerUp], spawnLocation, Quaternion.identity);
+        }
+    }
+
+    private IEnumerator WaveCountdown(float timeToNextWave)
+    {
+        while (_stopSpawning == false)
+        {
+            yield return new WaitForSeconds(timeToNextWave);
+            _readyForWave = true;
         }
     }
 

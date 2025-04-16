@@ -266,10 +266,10 @@ public class Player : MonoBehaviour
                 break;
             case 2:
                 _damagedEngineVisuals[0].SetActive(true);
-                _damagedEngineVisuals[1].SetActive(false); // for future "gain life" powerup
+                _damagedEngineVisuals[1].SetActive(false);
                 break;
             case 3:
-                _damagedEngineVisuals[0].SetActive(false); // for future "gain life" powerup
+                _damagedEngineVisuals[0].SetActive(false); 
                 break;
         }
     }

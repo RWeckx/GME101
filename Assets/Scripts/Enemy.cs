@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class Enemy : MonoBehaviour
     private float _rightBounds = 9.3f;
     private float _leftBounds = -9.3f;
 
+    private int _movementState; 
+
     private bool _isDead;
 
     private SpawnManager _spawnManager;
@@ -41,7 +44,8 @@ public class Enemy : MonoBehaviour
         if (_animator == null)
             Debug.Log("No reference to Animator");
         _pointsToGive = Random.Range(5, 15);
-
+        _movementState = 0;
+        StartCoroutine(ChangeMovementDirectionRoutine());
     }
 
     // Update is called once per frame
@@ -76,13 +80,35 @@ public class Enemy : MonoBehaviour
 
     private void CalculateMovement()
     {
-        transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+        switch (_movementState)
+        {
+            case 0:
+                transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+                break;
+            case 1:
+                transform.Translate(Vector3.right * _moveSpeed * Time.deltaTime);
+                break;
+            case 2:
+                transform.Translate(Vector3.left * _moveSpeed * Time.deltaTime);
+                break;
+        }
+
         if (transform.position.y <= _lowerBounds)
         {
             float randomX = Random.Range(_leftBounds, _rightBounds);
             transform.position = new Vector3(randomX, _upperBounds, 0);
+            _movementState = 0;
             if (_isDead)
                 Destroy(this.gameObject);
+        }
+
+        if (transform.position.x >= _rightBounds)
+        {
+            transform.position = new Vector3(_leftBounds, transform.position.y, transform.position.z);
+        }
+        else if (transform.position.x <= _leftBounds)
+        {
+            transform.position = new Vector3(_rightBounds, transform.position.y, transform.position.z);
         }
     }
 
@@ -118,6 +144,17 @@ public class Enemy : MonoBehaviour
         _isDead = true;
         _animator.SetTrigger("OnEnemyDeath");
         GetComponent<Collider2D>().enabled = false;
+        _movementState = 0;
         AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
+    }
+
+    IEnumerator ChangeMovementDirectionRoutine()
+    {
+        while (_isDead == false)
+        {
+            yield return new WaitForSeconds(3.0f);
+            if(_isDead == false)
+                _movementState = Random.Range(0, 3);
+        }
     }
 }
