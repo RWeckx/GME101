@@ -66,6 +66,7 @@ public class Player : MonoBehaviour
 
     private GameManager _gameManager;
     private AudioSource _audioSource;
+    private CameraManager _cameraManager;
 
     private GameObject _sourceLaserDamage;
 
@@ -94,6 +95,7 @@ public class Player : MonoBehaviour
         _shieldVisuals.SetActive(false);
         _uiManager = GameObject.FindObjectOfType<Canvas>().GetComponent<UIManager>();
         _gameManager = GameObject.FindObjectOfType<GameManager>();
+        _cameraManager = GameObject.FindObjectOfType<CameraManager>();
         _audioSource = GetComponent<AudioSource>();
 
         if (_spawnManager == null)
@@ -240,13 +242,14 @@ public class Player : MonoBehaviour
         {
             _currentShieldLives--;
             SetShieldVisuals();
+            _cameraManager.StartCameraShake(0.25f);
             return;
         }
 
-        // if the owner of the laser has damaged the player in 0.25s before, don't deal damage
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
-        HandlePlayerLives(); 
+        HandlePlayerLives();
+        _cameraManager.StartCameraShake(0.5f);
     }
 
     public void HandlePlayerLives()
@@ -272,6 +275,7 @@ public class Player : MonoBehaviour
     public void SetTripleShotActive()
     {
         _isTripleShotActive = true;
+        _isBombShotActive = false;
         StartCoroutine(TripleShotPowerDownRoutine());
     }
 
@@ -327,6 +331,7 @@ public class Player : MonoBehaviour
     public void SetBombActive()
     {
         _isBombShotActive = true;
+        _isTripleShotActive = false;
         StartCoroutine(BombShotPowerDownRoutine());
     }
 

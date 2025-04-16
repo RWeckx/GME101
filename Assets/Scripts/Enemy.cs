@@ -67,7 +67,8 @@ public class Enemy : MonoBehaviour
             {
                 if (_player != null)
                     _player.GetComponent<Player>().AddScore(_pointsToGive);
-                Destroy(other.gameObject);
+                if (other.GetComponent<CircleCollider2D>() == null) // destroy the object only if it's a laser, not if it's a bomb (bombs have circle colliders)
+                    Destroy(other.gameObject);
                 HandleEnemyDeath();
             }
         }
