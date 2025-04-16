@@ -1381,9 +1381,11 @@ MonoBehaviour:
   - {fileID: 5937493576909917921, guid: 379147fe96477fe43aeb80928b909127, type: 3}
   - {fileID: 5937493576909917921, guid: 25cd78917b7af3c4d942ee95ef3d9149, type: 3}
   - {fileID: 5937493576909917921, guid: 964025fe5612c0b468c9616e9cca71c8, type: 3}
-  _baseSpawnTime: 5
-  _spawnTimeModifier: 5
+  - {fileID: 5937493576909917921, guid: f890aba82d93f4c49b61c83070164d18, type: 3}
+  _amountEnemiesToSpawn: 7
+  _baseSpawnTime: 4
   _minMaxPowerUpSpawnTime: {x: 6, y: 10}
+  _enemiesSpawnedThisWave: 0
 --- !u!4 &1196896732
 Transform:
   m_ObjectHideFlags: 0

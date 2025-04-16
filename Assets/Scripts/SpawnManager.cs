@@ -13,8 +13,6 @@ public class SpawnManager : MonoBehaviour
     private int _amountEnemiesToSpawn = 7;
     [SerializeField]
     private float _baseSpawnTime = 4.0f;
-    [SerializeField]
-    private float _spawnTimeModifier = 1.0f;
     [Tooltip("X is min power up spawn time; Y is max spawn time")]
     [SerializeField]
     private Vector2 _minMaxPowerUpSpawnTime = new Vector2(6.0f, 10.0f);
@@ -28,23 +26,21 @@ public class SpawnManager : MonoBehaviour
     private bool _readyForWave;
     [SerializeField]
     private int _enemiesSpawnedThisWave;
-    private float _timeToNextWave = 3.0f;
+    private float _timeToNextWave = 5.0f;
 
 
     public void StartSpawning()
     {
-        _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_baseSpawnTime, _amountEnemiesToSpawn));
+        _spawnEnemyCoroutine = StartCoroutine(SpawnEnemyRoutine(_amountEnemiesToSpawn));
         _spawnPowerupCoroutine = StartCoroutine(SpawnPowerupRoutine());
-        StartCoroutine(WaveCountdown(_timeToNextWave));
+        StartCoroutine(WaveCountdownRoutine(_timeToNextWave));
     }
 
-    private IEnumerator SpawnEnemyRoutine(float spawnTime, int amountToSpawn)
+    private IEnumerator SpawnEnemyRoutine(int amountToSpawn)
     {
         while (_stopSpawning == false)
         {
-            //Update the spawn timer, it gets faster the more enemies you kill
-            _spawnTimeModifier = 1 + _killedEnemies * 0.07f;
-            float currentSpawnTime = _baseSpawnTime / _spawnTimeModifier;
+            float currentSpawnTime = _baseSpawnTime;
             currentSpawnTime = Mathf.Clamp(currentSpawnTime, 1.5f, 6f);
 
             if(_enemiesSpawnedThisWave < amountToSpawn && _readyForWave == true)
@@ -55,9 +51,11 @@ public class SpawnManager : MonoBehaviour
             else if (_enemiesSpawnedThisWave == amountToSpawn)
             {
                 _readyForWave = false;
-                _timeToNextWave += 3.0f;
                 _amountEnemiesToSpawn += 3;
+                _baseSpawnTime -= 0.5f;
+                _baseSpawnTime = Mathf.Clamp(_baseSpawnTime, 1.5f, 6.0f);
                 _enemiesSpawnedThisWave = 0;
+                StartCoroutine(WaveCountdownRoutine(_timeToNextWave));
             }
                 yield return new WaitForSeconds(currentSpawnTime);
         }
@@ -76,13 +74,11 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    private IEnumerator WaveCountdown(float timeToNextWave)
+    //Once the WaveCountdown is over, more enemies can be spawned. This is to give a tiny breather inbetween waves.
+    private IEnumerator WaveCountdownRoutine(float timeToNextWave)
     {
-        while (_stopSpawning == false)
-        {
             yield return new WaitForSeconds(timeToNextWave);
             _readyForWave = true;
-        }
     }
 
     void SpawnEnemyAtLocation()

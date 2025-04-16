@@ -337,6 +337,12 @@ public class Player : MonoBehaviour
         StartCoroutine(BombShotPowerDownRoutine());
     }
 
+    public void SetSlowActive()
+    {
+        _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
+        StartCoroutine(SlowPowerDownRoutine());
+    }
+    
     public void HandleThrusterAudio(AudioClip clip)
     {
         if (clip != null)
@@ -391,6 +397,12 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(_bombShotPowerDownTime);
         _isBombShotActive = false;
+    }
+
+    private IEnumerator SlowPowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_moveSpeedPowerDownTime / 2);
+        _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
     }
 
     private IEnumerator EngageThrusterRoutine()
