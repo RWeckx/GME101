@@ -20,7 +20,7 @@ public class Laser : MonoBehaviour
         }
     }
 
-    void MoveLaser()
+    protected void MoveLaser()
     {
         transform.Translate(Vector3.up * _direction * _speed * Time.deltaTime);
     }

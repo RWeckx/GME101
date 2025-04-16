@@ -30,7 +30,8 @@ public class Asteroid : MonoBehaviour
         {
             GameObject explosion = Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion.gameObject, 2.5f);
-            Destroy(collision.gameObject);
+            if (collision.GetComponent<CircleCollider2D>() == null) // if it isn't a bomb, destroy the laser.
+                Destroy(collision.gameObject);
             PlayExplosionSound();
             _spawnManager.StartSpawning();
             Destroy(this.gameObject, 0.25f);

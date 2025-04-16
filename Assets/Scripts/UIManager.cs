@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviour
     private TMP_Text _restartText;
     [SerializeField]
     private Image _thrusterProgressBar;
+    [SerializeField]
+    private TMP_Text _ammoCountText;
 
     private bool _isRechargingThruster;
     
@@ -26,6 +28,7 @@ public class UIManager : MonoBehaviour
     {
         UpdateLivesDisplay(3);
         _scoreText.text = "Score: " + 0;
+        _ammoCountText.text = "Ammo: " + 15 + "/" + 15;
         _gameOverText.gameObject.SetActive(false);
         _restartText.gameObject.SetActive(false);
         _thrusterProgressBar.color = new Color(1, 1, 1, 0); // hide Thruster progress bar until it's used
@@ -47,6 +50,15 @@ public class UIManager : MonoBehaviour
         _livesImg.sprite = _livesSprites[currentLives];
     }
 
+    public void UpdateAmmoText(int currentAmmo, int maxAmmo)
+    {
+        _ammoCountText.text = "Ammo: " + currentAmmo + "/" + maxAmmo;
+        if (currentAmmo == 0)
+        {
+            StartCoroutine(FlickerAmmoTextRoutine());
+        }
+    }
+    
     public void ShowGameOverText()
     {
         _gameOverText.gameObject.SetActive(true);
@@ -120,5 +132,12 @@ public class UIManager : MonoBehaviour
             _thrusterProgressBar.color = new Color(1, 1, 1, _thrusterProgressBar.color.a - speed * Time.deltaTime);
             yield return new WaitForEndOfFrame();
         }
+    }
+
+    IEnumerator FlickerAmmoTextRoutine()
+    {
+        _ammoCountText.color = Color.red;
+        yield return new WaitForSeconds(0.25f);
+        _ammoCountText.color = Color.white;
     }
 }
