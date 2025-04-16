@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
-    private float _shakeDuration = 1.0f;
+    private float _shakeDuration = 0.25f;
     private float _shakeIntensity = 0.1f;
     private float _decreaseFactor = 1.0f;
 
@@ -15,10 +15,14 @@ public class CameraManager : MonoBehaviour
     private bool _shouldCameraShake;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (_shakeTransform == null)
             _shakeTransform = GetComponent<Transform>() as Transform;
+    }
+
+    private void OnEnable()
+    {
         _originalPosition = _shakeTransform.localPosition;
     }
 
@@ -42,12 +46,15 @@ public class CameraManager : MonoBehaviour
         else
         {
             _shouldCameraShake = false;
+            _shakeDuration = 0.25f;
+            this.gameObject.transform.position = _originalPosition;
+            this.enabled = false;
         }
     }
     
-    public void StartCameraShake(float duration)
+    public void StartCameraShake(float intensity)
     {
         _shouldCameraShake = true;
-        _shakeDuration = duration;
+        _shakeIntensity = intensity;
     }
 }

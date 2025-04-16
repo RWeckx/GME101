@@ -242,14 +242,16 @@ public class Player : MonoBehaviour
         {
             _currentShieldLives--;
             SetShieldVisuals();
-            _cameraManager.StartCameraShake(0.25f);
+            _cameraManager.enabled = true;
+            _cameraManager.StartCameraShake(0.02f);
             return;
         }
 
         _lives--;
         _uiManager.UpdateLivesDisplay(_lives);
         HandlePlayerLives();
-        _cameraManager.StartCameraShake(0.5f);
+        _cameraManager.enabled = true;
+        _cameraManager.StartCameraShake(0.1f);
     }
 
     public void HandlePlayerLives()
