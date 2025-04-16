@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using UnityEditorInternal;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -50,7 +48,7 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         CalculateMovement();
-        if (Time.time > _canFire && transform.position.y < 6.0f && _isDead != true)
+        if (Time.time > _canFire && transform.position.y < 6.0f && _isDead == false)
             FireLaser();
     }
 
@@ -65,14 +63,13 @@ public class Enemy : MonoBehaviour
         if (other.tag == "Laser")
         {
             Laser laser = other.gameObject.GetComponent<Laser>();
-            if (laser != null)
-                if (laser.GetIsEnemyLaser() == false)
-                {
-                    if (_player != null)
-                        _player.GetComponent<Player>().AddScore(_pointsToGive);
-                    Destroy(other.gameObject);
-                    HandleEnemyDeath();
-                } 
+            if (laser != null && laser.GetIsEnemyLaser() == false)
+            {
+                if (_player != null)
+                    _player.GetComponent<Player>().AddScore(_pointsToGive);
+                Destroy(other.gameObject);
+                HandleEnemyDeath();
+            }
         }
     }
 
@@ -92,11 +89,13 @@ public class Enemy : MonoBehaviour
     {
         _fireRateInSec = Random.Range(_minMaxFireRate.x, _minMaxFireRate.y);
         _canFire = Time.time + _fireRateInSec;
+
         GameObject instantiatedLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+
         Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
         for (int i = 0; i < lasers.Length; i++)
         {
-            lasers[i].SetAsEnemyLaser(this.gameObject);
+            lasers[i].SetAsEnemyLaser();
         }
     }
 

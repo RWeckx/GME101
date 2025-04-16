@@ -5,16 +5,10 @@ public class PowerUp : MonoBehaviour
     [SerializeField]
     private float _moveSpeed = 3.0f;
     [SerializeField] // 0 = Triple Shot , 1 = Speed , 2 = Shields
-    private int powerupID;
+    private int _powerupID;
     [SerializeField]
     private AudioClip _powerUpAudioClip;
     private float _lowerBounds = -7.3f;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -36,7 +30,7 @@ public class PowerUp : MonoBehaviour
             Player player = collision.GetComponent<Player>();
             if (player != null)
             {
-                switch (powerupID)
+                switch (_powerupID)
                 {
                     case 0:
                         player.SetTripleShotActive();

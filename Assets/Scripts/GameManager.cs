@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R) && _isGameOver == true)
             SceneManager.LoadSceneAsync(_currentSceneIndex);
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();

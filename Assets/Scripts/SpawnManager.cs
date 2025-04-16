@@ -23,12 +23,6 @@ public class SpawnManager : MonoBehaviour
 
     private int _aliveEnemies;
     private int _killedEnemies; //updated on the DestroySelf function in Enemy script
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     public void StartSpawning()
     {
@@ -73,7 +67,6 @@ public class SpawnManager : MonoBehaviour
         GameObject spawnedEnemy = Instantiate(_enemyPrefab, spawnLocation, Quaternion.identity);
         spawnedEnemy.transform.parent = _enemyContainer.transform;
         _aliveEnemies++;
-        print("Enemies alive: " + _aliveEnemies);
     }
 
     public void OnPlayerDeath()

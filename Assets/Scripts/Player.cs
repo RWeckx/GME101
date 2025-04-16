@@ -30,6 +30,14 @@ public class Player : MonoBehaviour
     private float _moveSpeedBoostMultiplier = 0.3f;
     [SerializeField]
     private float _shieldPowerDownTime = 20.0f;
+    [SerializeField]
+    private float _thrusterMoveSpeedMultiplier = 0.2f;
+    [Tooltip("How long in seconds until the thruster is fully drained")]
+    [SerializeField]
+    private float _thrusterDrainSpeed = 1.0f;
+    [Tooltip("How long in seconds until the thruster is fully recharged")]
+    [SerializeField]
+    private float _thrusterRechargeSpeed = 4.0f;
 
     private float _canFire = 0f;
     private SpawnManager _spawnManager;
@@ -37,6 +45,7 @@ public class Player : MonoBehaviour
     private bool _isSpeedBoostActive = false;
     private bool _isShieldActive = false;
 
+    [SerializeField]
     private float _moveSpeed;
     private float _moveSpeedMultiplier = 0.0f; // A float representing a percentage. Eg.: 0.2 means 20%
     private float _fireRateMultiplier = 0.0f; // A float representing a percentage. Eg.: 0.2 means 20%
@@ -47,6 +56,9 @@ public class Player : MonoBehaviour
     private GameManager _gameManager;
 
     private GameObject _sourceLaserDamage;
+
+    private bool _leftShiftHeld;
+    private bool _thrusterRanOut;
 
     //Variables to define the playable space. The player cannot move outside of these bounds
     private float _upperBounds = 0;
@@ -83,9 +95,26 @@ public class Player : MonoBehaviour
     void Update()
     {
         CalculateMovement();
-        if(Input.GetKey(KeyCode.Space) && Time.time > _canFire)
+
+        // If shift is held, speed up. If it is released, go back to normal speed.
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            EngageThrusters();
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            DisengageThrusters();
+        }
+
+
+        if (Input.GetKey(KeyCode.Space) && Time.time > _canFire)
         {
             FireLaser();
+        }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Debug.Log("Movespeed is: " + _moveSpeedMultiplier);
         }
     }
 
@@ -116,13 +145,35 @@ public class Player : MonoBehaviour
     {
         float _fireRate = _baseFireRate * (1 + _fireRateMultiplier);
         _canFire = Time.time + _fireRate;
+
         if (_isTripleShotActive)
             Instantiate(_tripleShotPrefab, transform.position, Quaternion.identity);
-
         else
             Instantiate(_laserPrefab, transform.position + new Vector3(0, 1, 0), Quaternion.identity);
+
         _laserShotSFX.GetComponent<AudioSource>().Play();
     }
+
+    void EngageThrusters()
+    {
+        _leftShiftHeld = true;
+        _moveSpeedMultiplier += _thrusterMoveSpeedMultiplier;
+        _uiManager.DrainThrusterBar(_thrusterDrainSpeed);
+        StartCoroutine(EngageThrusterRoutine());
+    }
+       
+    void DisengageThrusters()
+    {
+        _leftShiftHeld = false;
+        if (_thrusterRanOut == false)
+            _moveSpeedMultiplier -= _thrusterMoveSpeedMultiplier;
+        _thrusterRanOut = false;
+        _uiManager.RechargeThrusterBar(_thrusterRechargeSpeed);
+    }
+
+
+            
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -132,9 +183,8 @@ public class Player : MonoBehaviour
             if (laser != null && laser.GetIsEnemyLaser() == true)
             {
                 GameObject sourceLaserDamage = laser.transform.parent.gameObject;
-                if (sourceLaserDamage == _sourceLaserDamage)
+                if (sourceLaserDamage == _sourceLaserDamage) // compare this laser's parent to the laser's parent that damaged us last. If true, don't deal damage with this laser.
                 {
-                    Debug.Log("Hello");
                     Destroy(collision.gameObject);
                     return;
                 }
@@ -233,9 +283,18 @@ public class Player : MonoBehaviour
         _shieldVisuals.SetActive(false);
     }
 
-    private IEnumerator ProtectionFromSameEnemy()
+    private IEnumerator EngageThrusterRoutine()
     {
-        yield return new WaitForSeconds(0.25f);
-        // if hit by a laser of the same enemy, don't take damage
+        while (_leftShiftHeld == true)
+        {
+            if (_uiManager.GetThrusterBarAmount() <= 0)
+            {
+                _thrusterRanOut = true;
+                _moveSpeedMultiplier -= _thrusterMoveSpeedMultiplier;
+                _leftShiftHeld = false;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
     }
 }

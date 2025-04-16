@@ -6,13 +6,7 @@ public class Laser : MonoBehaviour
     private float _speed = 3.0f;
     private float _direction = 1.0f;
     private bool _isEnemyLaser;
-    private GameObject _enemyOwner;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -31,11 +25,10 @@ public class Laser : MonoBehaviour
         transform.Translate(Vector3.up * _direction * _speed * Time.deltaTime);
     }
 
-    public void SetAsEnemyLaser(GameObject enemyOwner)
+    public void SetAsEnemyLaser()
     {
         _direction *= -1.0f;
         _isEnemyLaser = true;
-        _enemyOwner = enemyOwner;
     }
 
     public bool GetIsEnemyLaser()
