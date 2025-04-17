@@ -7,8 +7,12 @@ public class KamikazeEnemy : Enemy
     private float _speedBoostWhenInRange = 1.3f;
     [SerializeField]
     private float _distanceToRam;
+    [SerializeField]
+    private float _rotationOffset = -90f;
 
     private bool _inRangeOfPlayer = false;
+
+    float r;
 
     // Start is called before the first frame update
     void Start()
@@ -32,6 +36,8 @@ public class KamikazeEnemy : Enemy
     // Update is called once per frame
     void Update()
     {
+
+        
         CalculateMovement();
         
         // if in range of player, we set a bool to allow kamikaze to ram the player. If the player is position higher on Y, then the kamikaze stops following
@@ -50,12 +56,14 @@ public class KamikazeEnemy : Enemy
     protected override void CalculateMovement()
     {
         if (_inRangeOfPlayer == true && _isDead == false)
-        {
+        {   
             transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, _moveSpeed * _speedBoostWhenInRange * Time.deltaTime);
+            FaceTowardsPlayer();
         }
         else
         {
             transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f); // reset rotation to default;
         }
             
         if (transform.position.y <= _lowerBounds)
@@ -76,6 +84,14 @@ public class KamikazeEnemy : Enemy
             return distance;
         }
         else return (_distanceToRam + 5.0f);  // return a value outside the ram distance
+    }
+
+    private void FaceTowardsPlayer()
+    {
+        Vector3 diff = _player.transform.position - transform.position;
+        diff.Normalize();
+        float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, 0f, rot_z - _rotationOffset);
     }
 
 }

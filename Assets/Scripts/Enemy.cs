@@ -121,6 +121,7 @@ public class Enemy : MonoBehaviour
                 Destroy(this.gameObject);
         }
 
+        // move down if you hit the right or left bounds
         if (transform.position.x >= _rightBounds || transform.position.x <= _leftBounds)
         {
             _movementState = 0;
