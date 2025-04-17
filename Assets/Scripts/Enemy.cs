@@ -21,6 +21,8 @@ public class Enemy : MonoBehaviour
     protected float _canFire = 0.0f;
     [SerializeField]
     protected Vector3 _laserOffset = new Vector3(0, -1.2f, 0);
+    [SerializeField]
+    protected Vector3 _offsetFromBehind = new Vector3(0, 1.0f, 0);
 
     //Define bounds of playable space for enemies
     protected float _upperBounds = 9.0f;
@@ -32,8 +34,8 @@ public class Enemy : MonoBehaviour
     protected IEnumerator _movementCoroutine;
 
     protected bool _isDead;
-
     protected bool _isShieldActive;
+    protected bool _fireFromBehind;
 
     protected SpawnManager _spawnManager;
     protected Player _player;
@@ -62,7 +64,15 @@ public class Enemy : MonoBehaviour
     {
         CalculateMovement();
         if (Time.time > _canFire && transform.position.y < 6.0f && _isDead == false)
-            FireLaser();
+        {
+            if (CheckIfBehindPlayer() == true)
+            {
+                _fireFromBehind = true;
+                FireLaser();
+            }
+            else
+                FireLaser();
+        }
     }
 
     protected void OnTriggerEnter2D(Collider2D other)
@@ -121,14 +131,31 @@ public class Enemy : MonoBehaviour
     {
         _fireRateInSec = Random.Range(_minMaxFireRate.x, _minMaxFireRate.y);
         _canFire = Time.time + _fireRateInSec;
+        GameObject instantiatedLaser;
 
-        GameObject instantiatedLaser = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
-
-        Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
-        for (int i = 0; i < lasers.Length; i++)
+        if (_fireFromBehind == true)
         {
-            lasers[i].SetAsEnemyLaser();
+            instantiatedLaser = Instantiate(_projectilePrefab, transform.position + _offsetFromBehind, Quaternion.identity);
+            Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
+
+            for (int i = 0; i < lasers.Length; i++)
+            {
+                lasers[i].SetAsEnemyLaser(1.0f);
+            }
+
+            _fireFromBehind = false;
         }
+        else
+        {
+            instantiatedLaser = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
+            Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
+
+            for (int i = 0; i < lasers.Length; i++)
+            {
+                lasers[i].SetAsEnemyLaser(-1.0f);
+            }
+        }
+
     }
 
     void DealDamage(Collider2D other)
@@ -175,6 +202,20 @@ public class Enemy : MonoBehaviour
     protected void SetShieldVisuals(bool isActive)
     {
         _shieldVisuals.SetActive(isActive);
+    }
+
+    bool CheckIfBehindPlayer()
+    {
+        if (_player != null)
+        {
+            float distance = Vector3.Distance(transform.position, _player.transform.position);
+
+            if (distance < 4.0f && transform.position.y < _player.transform.position.y)
+                return true;
+            else
+                return false;
+        }
+        else return false;
     }
 
     protected virtual IEnumerator ChangeMovementDirectionRoutine()

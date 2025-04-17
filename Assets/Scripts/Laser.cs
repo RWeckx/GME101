@@ -25,9 +25,9 @@ public class Laser : MonoBehaviour
         transform.Translate(Vector3.up * _direction * _speed * Time.deltaTime);
     }
 
-    public void SetAsEnemyLaser()
+    public void SetAsEnemyLaser(float direction)
     {
-        _direction *= -1.0f;
+        _direction *= direction;
         _isEnemyLaser = true;
     }
 

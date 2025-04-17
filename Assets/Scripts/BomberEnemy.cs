@@ -36,7 +36,7 @@ public class BomberEnemy : Enemy
         _canFire = Time.time + _fireRateInSec;
 
         GameObject instantiatedBomb = Instantiate(_projectilePrefab, transform.position + _laserOffset, Quaternion.identity);
-        instantiatedBomb.GetComponent<Bomb>().SetAsEnemyLaser();
+        instantiatedBomb.GetComponent<Bomb>().SetAsEnemyLaser(-1.0f);
     }
     
     protected override IEnumerator ChangeMovementDirectionRoutine()
