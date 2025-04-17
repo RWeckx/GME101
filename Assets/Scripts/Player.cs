@@ -218,7 +218,7 @@ public class Player : MonoBehaviour
         if (collision.tag == "Laser")
         {
             Laser laser = collision.gameObject.GetComponent<Laser>();
-            if (laser != null && laser.GetIsEnemyLaser() == true)
+            if (laser != null && laser.GetIsEnemyLaser() == true && laser.transform.parent != null)
             {
                 GameObject sourceLaserDamage = laser.transform.parent.gameObject;
                 if (sourceLaserDamage == _sourceLaserDamage) // compare this laser's parent to the laser's parent that damaged us last. If true, don't deal damage with this laser.
@@ -232,7 +232,12 @@ public class Player : MonoBehaviour
                     TakeDamage();
                     Destroy(collision.gameObject);
                 }
-            }        
+            }
+            else if (laser != null && laser.GetIsEnemyLaser() == true)
+            {
+                TakeDamage();
+                SetSlowActive();
+            }
         }
     }
     public void TakeDamage()
@@ -243,7 +248,7 @@ public class Player : MonoBehaviour
             _currentShieldLives--;
             SetShieldVisuals();
             _cameraManager.enabled = true;
-            _cameraManager.StartCameraShake(0.02f);
+            _cameraManager.StartCameraShake(0.05f);
             return;
         }
 
@@ -402,7 +407,7 @@ public class Player : MonoBehaviour
     private IEnumerator SlowPowerDownRoutine()
     {
         yield return new WaitForSeconds(_moveSpeedPowerDownTime / 2);
-        _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
+        _moveSpeedMultiplier += _moveSpeedBoostMultiplier;
     }
 
     private IEnumerator EngageThrusterRoutine()

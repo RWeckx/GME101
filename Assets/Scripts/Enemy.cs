@@ -4,34 +4,35 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField]
-    private float _moveSpeed = 4.0f;
+    protected float _moveSpeed = 4.0f;
     [SerializeField]
-    private GameObject _laserPrefab;
+    protected GameObject _projectilePrefab;
     [SerializeField]
-    private AudioClip _explosionAudioClip;
-    private int _pointsToGive = 10;
+    protected AudioClip _explosionAudioClip;
+    protected int _pointsToGive = 10;
     [SerializeField]
-    private float _fireRateInSec = 3.0f;
+    protected float _fireRateInSec = 3.0f;
     [Tooltip("X & Y represent the min & max time in seconds it takes enemies to fire a laser")]
     [SerializeField]
-    private Vector2 _minMaxFireRate = new Vector2(3.0f, 6.0f);
-    private float _canFire = 0.0f;
+    protected Vector2 _minMaxFireRate = new Vector2(3.0f, 6.0f);
+    protected float _canFire = 0.0f;
     [SerializeField]
-    private Vector3 _laserOffset = new Vector3(0, -1.2f, 0);
+    protected Vector3 _laserOffset = new Vector3(0, -1.2f, 0);
 
     //Define bounds of playable space for enemies
-    private float _upperBounds = 9.0f;
-    private float _lowerBounds = -5.4f;
-    private float _rightBounds = 9.3f;
-    private float _leftBounds = -9.3f;
+    protected float _upperBounds = 9.0f;
+    protected float _lowerBounds = -5.4f;
+    protected float _rightBounds = 9.3f;
+    protected float _leftBounds = -9.3f;
 
-    private int _movementState; 
+    protected int _movementState;
+    protected IEnumerator _movementCoroutine;
 
-    private bool _isDead;
+    protected bool _isDead;
 
-    private SpawnManager _spawnManager;
-    private Player _player;
-    private Animator _animator;
+    protected SpawnManager _spawnManager;
+    protected Player _player;
+    protected Animator _animator;
 
     // Start is called before the first frame update
     void Start()
@@ -45,7 +46,8 @@ public class Enemy : MonoBehaviour
             Debug.Log("No reference to Animator");
         _pointsToGive = Random.Range(5, 15);
         _movementState = 0;
-        StartCoroutine(ChangeMovementDirectionRoutine());
+        _movementCoroutine = ChangeMovementDirectionRoutine();
+        StartCoroutine(_movementCoroutine);
     }
 
     // Update is called once per frame
@@ -56,7 +58,7 @@ public class Enemy : MonoBehaviour
             FireLaser();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
@@ -78,7 +80,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void CalculateMovement()
+    protected void CalculateMovement()
     {
         switch (_movementState)
         {
@@ -102,22 +104,18 @@ public class Enemy : MonoBehaviour
                 Destroy(this.gameObject);
         }
 
-        if (transform.position.x >= _rightBounds)
+        if (transform.position.x >= _rightBounds || transform.position.x <= _leftBounds)
         {
-            transform.position = new Vector3(_leftBounds, transform.position.y, transform.position.z);
-        }
-        else if (transform.position.x <= _leftBounds)
-        {
-            transform.position = new Vector3(_rightBounds, transform.position.y, transform.position.z);
+            _movementState = 0;
         }
     }
 
-    private void FireLaser()
+    protected virtual void FireLaser()
     {
         _fireRateInSec = Random.Range(_minMaxFireRate.x, _minMaxFireRate.y);
         _canFire = Time.time + _fireRateInSec;
 
-        GameObject instantiatedLaser = Instantiate(_laserPrefab, transform.position, Quaternion.identity);
+        GameObject instantiatedLaser = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
 
         Laser[] lasers = instantiatedLaser.GetComponentsInChildren<Laser>();
         for (int i = 0; i < lasers.Length; i++)
@@ -144,11 +142,12 @@ public class Enemy : MonoBehaviour
         _isDead = true;
         _animator.SetTrigger("OnEnemyDeath");
         GetComponent<Collider2D>().enabled = false;
+        StopCoroutine(_movementCoroutine);
         _movementState = 0;
         AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
     }
 
-    IEnumerator ChangeMovementDirectionRoutine()
+    protected virtual IEnumerator ChangeMovementDirectionRoutine()
     {
         while (_isDead == false)
         {

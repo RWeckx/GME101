@@ -3,9 +3,9 @@
 public class Laser : MonoBehaviour
 {
     [SerializeField]
-    private float _speed = 3.0f;
-    private float _direction = 1.0f;
-    private bool _isEnemyLaser;
+    protected float _speed = 3.0f;
+    protected float _direction = 1.0f;
+    protected bool _isEnemyLaser;
 
 
     // Update is called once per frame

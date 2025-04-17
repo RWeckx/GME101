@@ -26,7 +26,7 @@ public class SpawnManager : MonoBehaviour
     private bool _readyForWave;
     [SerializeField]
     private int _enemiesSpawnedThisWave;
-    private float _timeToNextWave = 5.0f;
+    private float _timeToNextWave = 3.0f;
 
 
     public void StartSpawning()
