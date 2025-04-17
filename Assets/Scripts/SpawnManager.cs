@@ -4,13 +4,18 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject _enemyPrefab;
+    private GameObject _enemyFighterPrefab;
+    [SerializeField]
+    private GameObject _enemyBomberPrefab;
     [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
     private GameObject[] _powerups;
     [SerializeField]
     private int _amountEnemiesToSpawn = 7;
+    [Tooltip("A value between 0.0 and 1.0. It represents a percentage.")]
+    [SerializeField]
+    private float _ratioEnemyFightersToSpawn = 1.0f;
     [SerializeField]
     private float _baseSpawnTime = 4.0f;
     [Tooltip("X is min power up spawn time; Y is max spawn time")]
@@ -24,7 +29,6 @@ public class SpawnManager : MonoBehaviour
     private int _aliveEnemies;
     private int _killedEnemies; //updated on the DestroySelf function in Enemy script
     private bool _readyForWave;
-    [SerializeField]
     private int _enemiesSpawnedThisWave;
     private float _timeToNextWave = 3.0f;
 
@@ -51,6 +55,8 @@ public class SpawnManager : MonoBehaviour
             else if (_enemiesSpawnedThisWave == amountToSpawn)
             {
                 _readyForWave = false;
+                _ratioEnemyFightersToSpawn -= 0.1f;
+                Mathf.Clamp(_ratioEnemyFightersToSpawn, 0.6f, 1.0f);
                 _amountEnemiesToSpawn += 3;
                 _baseSpawnTime -= 0.5f;
                 _baseSpawnTime = Mathf.Clamp(_baseSpawnTime, 1.5f, 6.0f);
@@ -69,8 +75,39 @@ public class SpawnManager : MonoBehaviour
             yield return new WaitForSeconds(_powerUpSpawnTime);
             float randomX = Random.Range(-9.3f, 9.3f);
             Vector3 spawnLocation = new Vector3(randomX, 9, 0);
-            int randomPowerUp = Random.Range(0, _powerups.Length);
-            Instantiate(_powerups[randomPowerUp], spawnLocation, Quaternion.identity);
+
+            int powerUpToSpawn;
+            int rollDice = Random.Range(0, 101);
+
+            // spawn TripleShot if roll between 0 & 15 (inclusive)
+            if (rollDice >= 0 && rollDice <= 15)
+                powerUpToSpawn = 0;
+
+            // spawn Speed if roll between 15 & 25 (inclusive)
+            else if (rollDice > 15 && rollDice <= 25)
+                powerUpToSpawn = 1;
+
+            // spawn Shield if roll between 25 & 40 (inclusive)
+            else if (rollDice > 25 && rollDice <= 40)
+                powerUpToSpawn = 2;
+
+            // spawn Ammo if roll between 40 & 70 (inclusive)
+            else if (rollDice > 40 && rollDice <= 70)
+                powerUpToSpawn = 3;
+
+            // spawn Health if roll between 70 & 80 (inclusive)
+            else if (rollDice > 70 && rollDice <= 80)
+                powerUpToSpawn = 4;
+
+            // spawn Bomb if roll between 80 & 90 (inclusive)
+            else if (rollDice > 80 && rollDice <= 90)
+                powerUpToSpawn = 5;
+
+            // spawn Slow Debuff if roll 91 or higher
+            else
+                powerUpToSpawn = 6;
+
+                Instantiate(_powerups[powerUpToSpawn], spawnLocation, Quaternion.identity);
         }
     }
 
@@ -85,9 +122,24 @@ public class SpawnManager : MonoBehaviour
     {
         float randomX = Random.Range(-9.3f, 9.3f);
         Vector3 spawnLocation = new Vector3(randomX, 9, 0);
-        GameObject spawnedEnemy = Instantiate(_enemyPrefab, spawnLocation, Quaternion.identity);
-        spawnedEnemy.transform.parent = _enemyContainer.transform;
-        _aliveEnemies++;
+
+        // roll to determine if we should spawn a fighter or bomber
+        float enemyToSpawn = Random.Range(0.0f, 1.0f);
+        Debug.Log(enemyToSpawn);
+
+        // spawn a fighter if the value is smaller or equal to the fighter spawn ratio
+        if (enemyToSpawn <= _ratioEnemyFightersToSpawn) 
+        {
+            GameObject spawnedEnemy = Instantiate(_enemyFighterPrefab, spawnLocation, Quaternion.identity);
+            spawnedEnemy.transform.parent = _enemyContainer.transform;
+            _aliveEnemies++;
+        }
+        else // spawn a bomber
+        {
+            GameObject spawnedEnemy = Instantiate(_enemyBomberPrefab, spawnLocation, Quaternion.identity);
+            spawnedEnemy.transform.parent = _enemyContainer.transform;
+            _aliveEnemies++;
+        }
     }
 
     public void OnPlayerDeath()
