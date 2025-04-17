@@ -14,7 +14,7 @@ public class BomberEnemy : Enemy
             Debug.Log("No reference to Player");
         if (_animator == null)
             Debug.Log("No reference to Animator");
-        _pointsToGive = Random.Range(5, 15);
+        _pointsToGive = Random.Range(15, 25);
         _movementState = 0;
         _movementCoroutine = ChangeMovementDirectionRoutine();
 
@@ -43,11 +43,11 @@ public class BomberEnemy : Enemy
         while (_isDead == false)
         {
                 _movementState = 0;
-                yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSeconds(2.0f);
                 _movementState = 1;
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(2.5f);
                 _movementState = 2;
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(2.5f);
         }
     }
 }

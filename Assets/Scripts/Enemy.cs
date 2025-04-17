@@ -9,6 +9,9 @@ public class Enemy : MonoBehaviour
     protected GameObject _projectilePrefab;
     [SerializeField]
     protected AudioClip _explosionAudioClip;
+    [SerializeField]
+    protected GameObject _shieldVisuals;
+    [SerializeField]
     protected int _pointsToGive = 10;
     [SerializeField]
     protected float _fireRateInSec = 3.0f;
@@ -29,6 +32,8 @@ public class Enemy : MonoBehaviour
     protected IEnumerator _movementCoroutine;
 
     protected bool _isDead;
+
+    protected bool _isShieldActive;
 
     protected SpawnManager _spawnManager;
     protected Player _player;
@@ -64,7 +69,7 @@ public class Enemy : MonoBehaviour
         {
             DealDamage(other);
             other.GetComponent<Player>().AddScore(_pointsToGive);
-            HandleEnemyDeath();
+            TakeDamage();
         }
         if (other.tag == "Laser")
         {
@@ -75,7 +80,7 @@ public class Enemy : MonoBehaviour
                     _player.GetComponent<Player>().AddScore(_pointsToGive);
                 if (other.GetComponent<CircleCollider2D>() == null) // destroy the object only if it's a laser, not if it's a bomb (bombs have circle colliders)
                     Destroy(other.gameObject);
-                HandleEnemyDeath();
+                TakeDamage();
             }
         }
     }
@@ -133,6 +138,18 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public void TakeDamage()
+    {
+        if (_isShieldActive == true)
+        {
+            SetShieldVisuals(false);
+            _isShieldActive = false;
+            return;
+        }
+
+        HandleEnemyDeath();
+    }
+    
     void HandleEnemyDeath()
     {
         if(_spawnManager != null)
@@ -145,6 +162,17 @@ public class Enemy : MonoBehaviour
         StopCoroutine(_movementCoroutine);
         _movementState = 0;
         AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
+    }
+
+    public void SetShieldActiveOnEnemy()
+    {
+        SetShieldVisuals(true);
+        _isShieldActive = true;
+    }
+
+    protected void SetShieldVisuals(bool isActive)
+    {
+        _shieldVisuals.SetActive(isActive);
     }
 
     protected virtual IEnumerator ChangeMovementDirectionRoutine()

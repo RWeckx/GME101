@@ -12,7 +12,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject[] _powerups;
     [SerializeField]
-    private int _amountEnemiesToSpawn = 7;
+    private int _amountEnemiesToSpawn = 5;
     [Tooltip("A value between 0.0 and 1.0. It represents a percentage.")]
     [SerializeField]
     private float _ratioEnemyFightersToSpawn = 1.0f;
@@ -31,6 +31,8 @@ public class SpawnManager : MonoBehaviour
     private bool _readyForWave;
     private int _enemiesSpawnedThisWave;
     private float _timeToNextWave = 3.0f;
+    [SerializeField]
+    private int _currentWave;
 
 
     public void StartSpawning()
@@ -114,31 +116,39 @@ public class SpawnManager : MonoBehaviour
     //Once the WaveCountdown is over, more enemies can be spawned. This is to give a tiny breather inbetween waves.
     private IEnumerator WaveCountdownRoutine(float timeToNextWave)
     {
-            yield return new WaitForSeconds(timeToNextWave);
-            _readyForWave = true;
+        yield return new WaitForSeconds(timeToNextWave);
+        _readyForWave = true;
+        _currentWave++;
     }
 
     void SpawnEnemyAtLocation()
     {
         float randomX = Random.Range(-9.3f, 9.3f);
         Vector3 spawnLocation = new Vector3(randomX, 9, 0);
+        GameObject spawnedEnemy;
 
         // roll to determine if we should spawn a fighter or bomber
         float enemyToSpawn = Random.Range(0.0f, 1.0f);
-        Debug.Log(enemyToSpawn);
+        float spawnWithShield = Random.Range(0, 6); 
 
         // spawn a fighter if the value is smaller or equal to the fighter spawn ratio
         if (enemyToSpawn <= _ratioEnemyFightersToSpawn) 
         {
-            GameObject spawnedEnemy = Instantiate(_enemyFighterPrefab, spawnLocation, Quaternion.identity);
+            spawnedEnemy = Instantiate(_enemyFighterPrefab, spawnLocation, Quaternion.identity);
             spawnedEnemy.transform.parent = _enemyContainer.transform;
             _aliveEnemies++;
         }
         else // spawn a bomber
         {
-            GameObject spawnedEnemy = Instantiate(_enemyBomberPrefab, spawnLocation, Quaternion.identity);
+            spawnedEnemy = Instantiate(_enemyBomberPrefab, spawnLocation, Quaternion.identity);
             spawnedEnemy.transform.parent = _enemyContainer.transform;
             _aliveEnemies++;
+        }
+
+        // 20% chance to spawn an enemy with shield if the shield roll was 0 and if the current wave is 3 or higher (so we don't spawn in the first 2 waves to keep early game beginner-friendly)
+        if(spawnWithShield == 0 && _currentWave > 2)
+        {
+            spawnedEnemy.GetComponent<Enemy>().SetShieldActiveOnEnemy();
         }
     }
 
