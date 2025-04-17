@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BomberEnemy : Enemy
@@ -10,6 +9,8 @@ public class BomberEnemy : Enemy
         _spawnManager = GameObject.FindObjectOfType<SpawnManager>();
         _player = GameObject.FindObjectOfType<Player>();
         _animator = GetComponent<Animator>();
+        if (_spawnManager == null)
+            Debug.Log("No reference to Spawn Manager");
         if (_player == null)
             Debug.Log("No reference to Player");
         if (_animator == null)

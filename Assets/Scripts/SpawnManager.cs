@@ -8,6 +8,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyBomberPrefab;
     [SerializeField]
+    private GameObject _enemyKamikazePrefab;
+    [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
     private GameObject[] _powerups;
@@ -138,11 +140,22 @@ public class SpawnManager : MonoBehaviour
             spawnedEnemy.transform.parent = _enemyContainer.transform;
             _aliveEnemies++;
         }
-        else // spawn a bomber
+        else // roll to spawn a bomber or a kamikaze
         {
-            spawnedEnemy = Instantiate(_enemyBomberPrefab, spawnLocation, Quaternion.identity);
-            spawnedEnemy.transform.parent = _enemyContainer.transform;
-            _aliveEnemies++;
+            int rollToSpawn = Random.Range(0, 2);
+            if (rollToSpawn == 0)
+            {
+                spawnedEnemy = Instantiate(_enemyBomberPrefab, spawnLocation, Quaternion.identity);
+                spawnedEnemy.transform.parent = _enemyContainer.transform;
+                _aliveEnemies++;
+            }
+            else
+            {
+                spawnedEnemy = Instantiate(_enemyKamikazePrefab, spawnLocation, Quaternion.identity);
+                spawnedEnemy.transform.parent = _enemyContainer.transform;
+                _aliveEnemies++;
+            }
+
         }
 
         // 20% chance to spawn an enemy with shield if the shield roll was 0 and if the current wave is 3 or higher (so we don't spawn in the first 2 waves to keep early game beginner-friendly)

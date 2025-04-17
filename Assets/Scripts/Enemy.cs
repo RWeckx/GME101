@@ -45,6 +45,8 @@ public class Enemy : MonoBehaviour
         _spawnManager = GameObject.FindObjectOfType<SpawnManager>();
         _player = GameObject.FindObjectOfType<Player>();
         _animator = GetComponent<Animator>();
+        if (_spawnManager == null)
+            Debug.Log("No reference to Spawn Manager");
         if (_player == null)
             Debug.Log("No reference to Player");
         if (_animator == null)
@@ -85,7 +87,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    protected void CalculateMovement()
+    protected virtual void CalculateMovement()
     {
         switch (_movementState)
         {
