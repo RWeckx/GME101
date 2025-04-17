@@ -9,6 +9,15 @@ public class PowerUp : MonoBehaviour
     [SerializeField]
     private AudioClip _powerUpAudioClip;
     private float _lowerBounds = -7.3f;
+    private bool _moveToPlayer;
+    private Player _player;
+
+    private void Start()
+    {
+        _player = GameObject.FindObjectOfType<Player>();
+        if (_player == null)
+            Debug.Log("Player reference is null on PowerUp");
+    }
 
     // Update is called once per frame
     void Update()
@@ -18,7 +27,14 @@ public class PowerUp : MonoBehaviour
 
     public void CalculateMovement()
     {
-        transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+        if (_moveToPlayer == true && _player != null)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, _moveSpeed * 2.0f * Time.deltaTime);
+        }
+        else
+            transform.Translate(Vector3.down * _moveSpeed * Time.deltaTime);
+
+
         if (transform.position.y <= _lowerBounds)
             Destroy(this.gameObject);
     }
@@ -60,5 +76,10 @@ public class PowerUp : MonoBehaviour
 
             Destroy(this.gameObject);
         }       
+    }
+
+    public void SetMoveToPlayer()
+    {
+        _moveToPlayer = true;
     }
 }

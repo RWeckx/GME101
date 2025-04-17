@@ -55,6 +55,7 @@ public class Player : MonoBehaviour
     private SpawnManager _spawnManager;
     private bool _isTripleShotActive = false;
     private bool _isBombShotActive = false;
+    private bool _canPullPowerUps = true;
 
     [SerializeField]
     private float _moveSpeed;
@@ -137,9 +138,9 @@ public class Player : MonoBehaviour
             FireLaser();
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            Debug.Log("Movespeed is: " + _moveSpeedMultiplier);
+            PullPowerUpsToPlayer();
         }
     }
 
@@ -347,6 +348,19 @@ public class Player : MonoBehaviour
         _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
         StartCoroutine(SlowPowerDownRoutine());
     }
+
+    private void PullPowerUpsToPlayer()
+    {
+        PowerUp[] foundPowerUps = GameObject.FindObjectsOfType<PowerUp>();
+
+        foreach (var obj in foundPowerUps)
+        {
+            obj.SetMoveToPlayer();
+        }
+
+        _canPullPowerUps = false;
+        StartCoroutine(PullPowerUpsToPlayerCoolDownRoutine());
+    }
     
     public void HandleThrusterAudio(AudioClip clip)
     {
@@ -424,5 +438,11 @@ public class Player : MonoBehaviour
 
             yield return new WaitForEndOfFrame();
         }
+    }
+
+    private IEnumerator PullPowerUpsToPlayerCoolDownRoutine()
+    {
+        yield return new WaitForSeconds(5.0f);
+        _canPullPowerUps = true;
     }
 }

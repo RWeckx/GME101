@@ -70,8 +70,12 @@ public class KamikazeEnemy : Enemy
 
     float CheckDistanceToPlayer()
     {
-        float distance = Vector3.Distance(_player.transform.position, transform.position);
-        return distance;
+        if (_player != null)
+        {
+            float distance = Vector3.Distance(_player.transform.position, transform.position);
+            return distance;
+        }
+        else return (_distanceToRam + 5.0f);  // return a value outside the ram distance
     }
 
 }
