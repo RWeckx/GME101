@@ -63,6 +63,7 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         CalculateMovement();
+
         if (Time.time > _canFire && transform.position.y < 6.0f && _isDead == false)
         {
             if (CheckIfBehindPlayer() == true)
@@ -70,9 +71,18 @@ public class Enemy : MonoBehaviour
                 _fireFromBehind = true;
                 FireLaser();
             }
+            else if (CheckForIncomingObjects() == "Power Up")
+            {
+                FireLaser();
+            }
             else
                 FireLaser();
         }
+    }
+
+    private void FixedUpdate()
+    {
+        CheckForIncomingObjects();
     }
 
     protected void OnTriggerEnter2D(Collider2D other)
@@ -110,6 +120,11 @@ public class Enemy : MonoBehaviour
             case 2:
                 transform.Translate(Vector3.left * _moveSpeed * Time.deltaTime);
                 break;
+        }
+
+        if (CheckForIncomingObjects() == "Laser(Clone)")
+        {
+            AttemptDodgeLaser();
         }
 
         if (transform.position.y <= _lowerBounds)
@@ -178,6 +193,42 @@ public class Enemy : MonoBehaviour
         }
 
         HandleEnemyDeath();
+    }
+    
+    private string CheckForIncomingObjects()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position + Vector3.down * 2f, -Vector2.up, 3.0f);
+
+        if (hit)
+        {
+            // if the raycast hits a player laser, roll to move away to the right or left
+            if (hit.collider.name is "Laser(Clone)")
+            {
+                int rollDirection = Random.Range(0, 2);
+                if (rollDirection == 0)
+                    _movementState = 2;
+                else
+                    _movementState = 1;
+                return "Laser(Clone)";
+            }
+            // if the raycast hits a powerup that isn't the slow debuff, fire at it
+            else if (hit.collider.gameObject.tag is "Power Up")
+            {
+                return "Power Up";
+            }
+            else return null;
+
+        }
+        else return null;
+    }
+
+    private void AttemptDodgeLaser()
+    {
+        int rollDirection = Random.Range(0, 2);
+        if (rollDirection == 0)
+            _movementState = 2;
+        else
+            _movementState = 1;
     }
     
     void HandleEnemyDeath()

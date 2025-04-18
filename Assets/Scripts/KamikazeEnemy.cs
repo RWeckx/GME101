@@ -12,8 +12,6 @@ public class KamikazeEnemy : Enemy
 
     private bool _inRangeOfPlayer = false;
 
-    float r;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -40,7 +38,7 @@ public class KamikazeEnemy : Enemy
         
         CalculateMovement();
         
-        // if in range of player, we set a bool to allow kamikaze to ram the player. If the player is position higher on Y, then the kamikaze stops following
+        // if in range of player, we set a bool to allow kamikaze to ram the player. If the player is positioned higher on Y, then the kamikaze stops following
         if (CheckDistanceToPlayer() <= _distanceToRam && transform.position.y > _player.transform.position.y)
         {
             _inRangeOfPlayer = true;
@@ -58,7 +56,7 @@ public class KamikazeEnemy : Enemy
         if (_inRangeOfPlayer == true && _isDead == false)
         {   
             transform.position = Vector3.MoveTowards(transform.position, _player.transform.position, _moveSpeed * _speedBoostWhenInRange * Time.deltaTime);
-            FaceTowardsPlayer();
+            RotateTowardsPlayer();
         }
         else
         {
@@ -86,12 +84,11 @@ public class KamikazeEnemy : Enemy
         else return (_distanceToRam + 5.0f);  // return a value outside the ram distance
     }
 
-    private void FaceTowardsPlayer()
+    private void RotateTowardsPlayer()
     {
         Vector3 diff = _player.transform.position - transform.position;
         diff.Normalize();
         float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, rot_z - _rotationOffset);
     }
-
 }

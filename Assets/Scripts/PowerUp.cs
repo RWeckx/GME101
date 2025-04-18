@@ -75,7 +75,15 @@ public class PowerUp : MonoBehaviour
                 AudioSource.PlayClipAtPoint(_powerUpAudioClip, transform.position, 0.5f);
 
             Destroy(this.gameObject);
-        }       
+        }
+        else if (collision.tag is "Laser")
+        {
+            bool isEnemyLaser = collision.gameObject.GetComponent<Laser>().GetIsEnemyLaser();
+            if (isEnemyLaser)
+            {
+                Destroy(this.gameObject);
+            }
+        }
     }
 
     public void SetMoveToPlayer()
