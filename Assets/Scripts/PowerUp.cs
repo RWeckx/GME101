@@ -69,6 +69,9 @@ public class PowerUp : MonoBehaviour
                     case 6:
                         player.SetSlowActive();
                         break;
+                    case 7:
+                        player.SetHomingMissileActive();
+                        break;
                 } 
             }
             if (_powerUpAudioClip != null)

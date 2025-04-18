@@ -107,9 +107,13 @@ public class SpawnManager : MonoBehaviour
             else if (rollDice > 80 && rollDice <= 90)
                 powerUpToSpawn = 5;
 
-            // spawn Slow Debuff if roll 91 or higher
-            else
+            // spawn Slow Debuff if roll between 90 & 95
+            else if (rollDice > 90 && rollDice <= 95)
                 powerUpToSpawn = 6;
+
+            // spawn Homing Missile if roll 96 or higher
+            else
+                powerUpToSpawn = 7;
 
                 Instantiate(_powerups[powerUpToSpawn], spawnLocation, Quaternion.identity);
         }

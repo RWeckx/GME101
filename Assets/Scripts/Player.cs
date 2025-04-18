@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject _bombPrefab;
     [SerializeField]
+    private GameObject _missilePrefab;
+    [SerializeField]
     private GameObject _shieldVisuals;
     [SerializeField]
     private GameObject[] _damagedEngineVisuals;
@@ -33,6 +35,8 @@ public class Player : MonoBehaviour
     private float _moveSpeedPowerDownTime = 2.0f;
     [SerializeField]
     private float _bombShotPowerDownTime = 2.5f;
+    [SerializeField]
+    private float _homingMissilePowerDownTime = 3.0f;
     [Tooltip("A float representing a percentage. Eg.: 0.2 means 20%")]
     [SerializeField]
     private float _moveSpeedBoostMultiplier = 0.3f;
@@ -55,6 +59,7 @@ public class Player : MonoBehaviour
     private SpawnManager _spawnManager;
     private bool _isTripleShotActive = false;
     private bool _isBombShotActive = false;
+    private bool _isHomingMissileActive = false;
     private bool _canPullPowerUps = true;
 
     [SerializeField]
@@ -182,6 +187,11 @@ public class Player : MonoBehaviour
             Instantiate(_bombPrefab, transform.position + Vector3.up, Quaternion.identity);
             _laserShotSFX.GetComponent<AudioSource>().Play();
         }
+        else if (_isHomingMissileActive)
+        {
+            Instantiate(_missilePrefab, transform.position + Vector3.up, Quaternion.identity);
+            _laserShotSFX.GetComponent<AudioSource>().Play();
+        }
         else if (_currentAmmoCount > 0)
         {
             Instantiate(_laserPrefab, transform.position + Vector3.up, Quaternion.identity);
@@ -284,6 +294,7 @@ public class Player : MonoBehaviour
     {
         _isTripleShotActive = true;
         _isBombShotActive = false;
+        _isHomingMissileActive = false;
         StartCoroutine(TripleShotPowerDownRoutine());
     }
 
@@ -340,6 +351,7 @@ public class Player : MonoBehaviour
     {
         _isBombShotActive = true;
         _isTripleShotActive = false;
+        _isHomingMissileActive = false;
         StartCoroutine(BombShotPowerDownRoutine());
     }
 
@@ -347,6 +359,14 @@ public class Player : MonoBehaviour
     {
         _moveSpeedMultiplier -= _moveSpeedBoostMultiplier;
         StartCoroutine(SlowPowerDownRoutine());
+    }
+
+    public void SetHomingMissileActive()
+    {
+        _isHomingMissileActive = true;
+        _isBombShotActive = false;
+        _isTripleShotActive = false;
+        StartCoroutine(HomingMissilePowerDownRoutine());
     }
 
     private void PullPowerUpsToPlayer()
@@ -424,6 +444,12 @@ public class Player : MonoBehaviour
         _moveSpeedMultiplier += _moveSpeedBoostMultiplier;
     }
 
+    private IEnumerator HomingMissilePowerDownRoutine()
+    {
+        yield return new WaitForSeconds(_homingMissilePowerDownTime);
+        _isHomingMissileActive = false;
+    }
+
     private IEnumerator EngageThrusterRoutine()
     {
         while (_leftShiftHeld == true)
@@ -445,4 +471,5 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(5.0f);
         _canPullPowerUps = true;
     }
+
 }

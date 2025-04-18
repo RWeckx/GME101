@@ -32,7 +32,7 @@ public class Bomb : Laser
         }
     }
 
-    private void HandleBombExplosion()
+    protected void HandleBombExplosion()
     {
         GetComponent<CircleCollider2D>().radius = _explosionRadius;
         GameObject explosion = Instantiate(_explosionPrefab, transform.position, Quaternion.identity);
@@ -42,7 +42,7 @@ public class Bomb : Laser
         Destroy(this.gameObject, 0.5f);
     }
 
-    IEnumerator ExplosionCountDownRoutine()
+    protected IEnumerator ExplosionCountDownRoutine()
     {
         yield return new WaitForSeconds(_timeToExplosion);
         HandleBombExplosion();

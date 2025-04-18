@@ -270,6 +270,11 @@ public class Enemy : MonoBehaviour
         else return false;
     }
 
+    public bool GetIsDead()
+    {
+        return _isDead;
+    }
+    
     protected virtual IEnumerator ChangeMovementDirectionRoutine()
     {
         while (_isDead == false)
