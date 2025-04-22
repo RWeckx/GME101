@@ -4,6 +4,8 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField]
+    protected int _health = 1;
+    [SerializeField]
     protected float _moveSpeed = 4.0f;
     [SerializeField]
     protected GameObject _projectilePrefab;
@@ -98,8 +100,6 @@ public class Enemy : MonoBehaviour
             Laser laser = other.gameObject.GetComponent<Laser>();
             if (laser != null && laser.GetIsEnemyLaser() == false)
             {
-                if (_player != null)
-                    _player.GetComponent<Player>().AddScore(_pointsToGive);
                 if (other.GetComponent<CircleCollider2D>() == null) // destroy the object only if it's a laser, not if it's a bomb (bombs have circle colliders)
                     Destroy(other.gameObject);
                 TakeDamage();
@@ -192,7 +192,10 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        HandleEnemyDeath();
+        _health--;
+
+        if(_health <= 0)
+            HandleEnemyDeath();
     }
     
     private string CheckForIncomingObjects()
@@ -242,6 +245,8 @@ public class Enemy : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         StopCoroutine(_movementCoroutine);
         _movementState = 0;
+        if (_player != null)
+            _player.GetComponent<Player>().AddScore(_pointsToGive);
         AudioSource.PlayClipAtPoint(_explosionAudioClip, transform.position, 0.5f);
     }
 

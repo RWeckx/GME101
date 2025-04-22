@@ -10,6 +10,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField]
     private GameObject _enemyKamikazePrefab;
     [SerializeField]
+    private GameObject _enemyBossPrefab;
+    [SerializeField]
     private GameObject _enemyContainer;
     [SerializeField]
     private GameObject[] _powerups;
@@ -31,6 +33,7 @@ public class SpawnManager : MonoBehaviour
     private int _aliveEnemies;
     private int _killedEnemies; //updated on the DestroySelf function in Enemy script
     private bool _readyForWave;
+    private bool _bossSpawned;
     private int _enemiesSpawnedThisWave;
     private float _timeToNextWave = 3.0f;
     [SerializeField]
@@ -51,12 +54,12 @@ public class SpawnManager : MonoBehaviour
             float currentSpawnTime = _baseSpawnTime;
             currentSpawnTime = Mathf.Clamp(currentSpawnTime, 1.5f, 6f);
 
-            if(_enemiesSpawnedThisWave < amountToSpawn && _readyForWave == true)
+            if (_enemiesSpawnedThisWave < amountToSpawn && _readyForWave == true && _currentWave < 5)
             {
                 SpawnEnemyAtLocation();
                 _enemiesSpawnedThisWave++;
             }
-            else if (_enemiesSpawnedThisWave == amountToSpawn)
+            else if (_enemiesSpawnedThisWave == amountToSpawn && _currentWave < 5)
             {
                 _readyForWave = false;
                 _ratioEnemyFightersToSpawn -= 0.1f;
@@ -67,7 +70,14 @@ public class SpawnManager : MonoBehaviour
                 _enemiesSpawnedThisWave = 0;
                 StartCoroutine(WaveCountdownRoutine(_timeToNextWave));
             }
-                yield return new WaitForSeconds(currentSpawnTime);
+            else if (_currentWave == 5 && _bossSpawned == false)
+            {
+                SpawnBoss();
+                _bossSpawned = true;
+                StopCoroutine(SpawnEnemyRoutine(_amountEnemiesToSpawn));
+            }
+
+            yield return new WaitForSeconds(currentSpawnTime);
         }
     }
 
@@ -167,6 +177,12 @@ public class SpawnManager : MonoBehaviour
         {
             spawnedEnemy.GetComponent<Enemy>().SetShieldActiveOnEnemy();
         }
+    }
+
+    private void SpawnBoss()
+    {
+        Vector3 spawnLocation = new Vector3(0, 9, 0);
+        Instantiate(_enemyBossPrefab, spawnLocation, Quaternion.identity);
     }
 
     public void OnPlayerDeath()

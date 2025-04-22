@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2093112614}
   - component: {fileID: 2093112616}
   m_Layer: 0
-  m_Name: EnemyShield_Fighter
+  m_Name: EnemyShield_Kamikaze
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

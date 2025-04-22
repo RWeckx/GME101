@@ -7,8 +7,6 @@ public class HomingMissile : Bomb
     private float _speedBoostWhenInRange = 1.7f;
     [SerializeField]
     private float _rotationOffset = 90f;
-    private bool _targetAcquired = false;
-    private bool _hasExploded = false;
     private GameObject _target;
 
     // Update is called once per frame
@@ -16,11 +14,15 @@ public class HomingMissile : Bomb
     {
         FindClosestTarget();
 
-        if (_targetAcquired && _hasExploded == false && _target != null)
+        if (_target != null)
             if (_target.GetComponent<Enemy>().GetIsDead() == false)
                 CalculateMovement();
-            else 
+            else
+            {
                 MoveLaser();
+                _target = null;
+            }
+                
         else
             MoveLaser();
     }
@@ -33,23 +35,25 @@ public class HomingMissile : Bomb
 
     private void FindClosestTarget()
     {
-        if (_targetAcquired == false)
+        if (_target == null)
         {
             float previousDistance = 10;
             GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
             foreach (GameObject enemy in enemies)
             {
-                if (enemy != null)
+                bool isDead = enemy.GetComponent<Enemy>().GetIsDead();
+
+                if (isDead == false)
                 {
                     float distance = Vector3.Distance(enemy.transform.position, transform.position);
                     if (distance < previousDistance)
                     {
                         previousDistance = distance;
                         _target = enemy;
-                        _targetAcquired = true;
                     }
                 }
+
             }
         }
     }
