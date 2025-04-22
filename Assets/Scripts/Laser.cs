@@ -3,16 +3,10 @@
 public class Laser : MonoBehaviour
 {
     [SerializeField]
-    private float _speed = 3.0f;
-    private float _direction = 1.0f;
-    private bool _isEnemyLaser;
-    private GameObject _enemyOwner;
+    protected float _speed = 3.0f;
+    protected float _direction = 1.0f;
+    protected bool _isEnemyLaser;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -26,16 +20,15 @@ public class Laser : MonoBehaviour
         }
     }
 
-    void MoveLaser()
+    protected void MoveLaser()
     {
         transform.Translate(Vector3.up * _direction * _speed * Time.deltaTime);
     }
 
-    public void SetAsEnemyLaser(GameObject enemyOwner)
+    public void SetAsEnemyLaser(float direction)
     {
-        _direction *= -1.0f;
+        _direction *= direction;
         _isEnemyLaser = true;
-        _enemyOwner = enemyOwner;
     }
 
     public bool GetIsEnemyLaser()
